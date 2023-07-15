@@ -31,7 +31,8 @@ public class Bid {
     @Column(nullable = false,name = "date_time", updatable = false)
     private OffsetDateTime dateTime;
 
-    public Bid(String name) {
+    public Bid(String name, Lot lot) {
         this.name = name;
+        this.lot = lot;
     }
 }

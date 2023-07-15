@@ -27,6 +27,7 @@ public class LotMapper {
     }
     public pro.sky.coursework3.auction.dto.Lot toDto(Lot lot) {
         pro.sky.coursework3.auction.dto.Lot lotDto = new pro.sky.coursework3.auction.dto.Lot();
+        lotDto.setId(lot.getId());
         lotDto.setTitle(lot.getTitle());
         lotDto.setDescription(lot.getDescription());
         lotDto.setStatus(lot.getStatus());

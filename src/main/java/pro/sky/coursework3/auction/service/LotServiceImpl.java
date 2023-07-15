@@ -3,6 +3,7 @@ package pro.sky.coursework3.auction.service;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import jakarta.persistence.Tuple;
 import lombok.Data;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +18,13 @@ import pro.sky.coursework3.auction.mapper.LotMapper;
 import pro.sky.coursework3.auction.repository.BidRepository;
 import pro.sky.coursework3.auction.repository.LotRepository;
 
-import javax.imageio.IIOException;
-import java.awt.*;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,8 +52,29 @@ public class LotServiceImpl implements LotService {
 
     @Override
     public FullLot getFullLot(int lotId) {
-        return lotRepository.getFullLot(lotId)
+        Tuple tuple = lotRepository.getFullLot(lotId)
                 .orElseThrow(LotNotFoundException::new);
+        Bid lastBid = new Bid(
+                tuple.get("bidderName", String.class),
+                tuple.get("bidDate", OffsetDateTime.class)
+        );
+        if (lastBid.getBidDate() == null && lastBid.getBidderName() == null) {
+            lastBid = null;
+        }
+        return new FullLot(
+                tuple.get("id", Integer.class),
+                Status.valueOf(tuple.get("status", String.class)),
+                tuple.get("title", String.class),
+                tuple.get("description", String.class),
+                tuple.get("startPrice", Integer.class),
+                tuple.get("bidPrice", Integer.class),
+                tuple.get("currentPrice", Long.class).intValue(),
+                lastBid
+//                new Bid(
+//                        tuple.get("bidderName", String.class),
+//                        tuple.get("bidDate", OffsetDateTime.class)
+//                )
+        );
     }
 
     @Override
@@ -65,7 +89,7 @@ public class LotServiceImpl implements LotService {
         if (lot.getStatus() == Status.CREATED || lot.getStatus() == Status.STOPPED) {
             throw new LotNotStartedYetException();
         }
-        bidRepository.save(new pro.sky.coursework3.auction.entity.Bid(bidder.getName()));
+        bidRepository.save(new pro.sky.coursework3.auction.entity.Bid(bidder.getName(), lot));
     }
 
     @Override
@@ -97,7 +121,7 @@ public class LotServiceImpl implements LotService {
 
     @Override
     public void getCSVFile()  {
-        List<Lot> lotCSV = new ArrayList<>();
+        List<Lot> lotCSV = lotRepository.findAll();
         CsvMapper mapper = new CsvMapper();
         CsvSchema schema = mapper.schemaFor(FullLot.class)
                 .withColumnSeparator(';')
