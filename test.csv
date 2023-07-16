@@ -1,0 +1,6 @@
+id;status;title;lastBid;currentPrice;bidPrice;description;startPrice
+3;CREATED;Кулон;;;100;Кулон, место раскопок Египет;100
+4;CREATED;Часы;;;1000;Часы 1970 г.в.;1000
+5;CREATED;Браслет;;;100;Браслет с алмазами;100
+1;STOPPED;string;;;1;string;1
+2;STARTED;Ваза;;;100;Красивая ваза династии Минь;100
